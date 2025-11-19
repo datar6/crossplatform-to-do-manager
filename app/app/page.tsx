@@ -1,19 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TaskList } from '@/components/task-list';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
-      <div className="container mx-auto p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Todo Manager</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button>Test Button</Button>
-            <p className="mt-4">UI Components are ready!</p>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto p-4 flex justify-center">
+        <TaskList />
       </div>
     </main>
   );
