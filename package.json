@@ -1,0 +1,24 @@
+{
+  "name": "crossplatform-todo-manager",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:frontend": "cd app && npm run dev",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:electron": "cd src-electron && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:full": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "db:dev:up": "docker-compose up -d",
+    "db:dev:down": "docker-compose down",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:generate": "cd backend && npm run db:generate",
+    "install:all": "npm install && cd app && npm install && cd ../backend && npm install && cd ../src-electron && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "prisma": "^5.22.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
+}

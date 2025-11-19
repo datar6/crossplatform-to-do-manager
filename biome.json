@@ -1,0 +1,58 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
+	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": true },
+
+	"files": {
+		"ignoreUnknown": true
+	},
+	"formatter": {
+		"enabled": true,
+		"useEditorconfig": true,
+		"formatWithErrors": false,
+		"indentStyle": "space",
+		"indentWidth": 2,
+		"lineWidth": 140,
+		"attributePosition": "auto",
+		"bracketSpacing": true
+	},
+
+	"linter": {
+		"enabled": true,
+		"domains": {
+			"next": "recommended"
+		},
+		"rules": {
+			"a11y": {
+				"noSvgWithoutTitle": "off",
+				"noLabelWithoutControl": "off",
+				"noStaticElementInteractions": "off",
+				"useKeyWithClickEvents": "off",
+				"useAriaPropsSupportedByRole": "off",
+				"useKeyWithMouseEvents": "off"
+			},
+			"correctness": {
+				"useHookAtTopLevel": "off"
+			},
+			"complexity": {
+				"noStaticOnlyClass": "off"
+			}
+		}
+	},
+	"javascript": {
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
+		},
+		"formatter": {
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "all",
+			"semicolons": "always",
+			"arrowParentheses": "asNeeded",
+			"bracketSameLine": false,
+			"quoteStyle": "single",
+			"attributePosition": "auto",
+			"bracketSpacing": true
+		},
+		"globals": ["route", "S"]
+	}
+}

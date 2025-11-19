@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://todo_user:todo_pass@localhost:5432/todo_db"
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  done        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
