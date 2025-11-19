@@ -6,15 +6,36 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from 'hooks/use-tasks';
-import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+
+type FilterType = 'all' | 'active' | 'completed';
 
 export function TaskList() {
   const [newTask, setNewTask] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState<FilterType>('all');
+
   const { data: tasks = [], isLoading } = useTasks();
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
+
+  // Фільтрація та пошук
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      // Пошук по заголовку
+      const matchesSearch =
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        false;
+
+      // Фільтрація по статусу
+      const matchesFilter = filter === 'all' ? true : filter === 'active' ? !task.done : filter === 'completed' ? task.done : true;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [tasks, searchTerm, filter]);
 
   const addTask = () => {
     if (newTask.trim()) {
@@ -32,15 +53,25 @@ export function TaskList() {
   };
 
   if (isLoading) {
-    return <div>Loading tasks...</div>;
+    return <div className="flex justify-center">Loading tasks...</div>;
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>Todo Manager</CardTitle>
+        <CardTitle className="flex justify-between items-center">
+          <span>Todo Manager</span>
+          <span className="text-sm font-normal text-muted-foreground">{filteredTasks.length} tasks</span>
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Пошук */}
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search tasks..." className="pl-10" />
+        </div>
+
+        {/* Додавання нової задачі */}
         <div className="flex space-x-2">
           <Input
             value={newTask}
@@ -53,12 +84,32 @@ export function TaskList() {
           </Button>
         </div>
 
-        <div className="space-y-2">
-          {tasks.map(task => (
-            <div key={task.id} className="flex items-center justify-between p-2 border rounded">
-              <div className="flex items-center space-x-2">
+        {/* Фільтри */}
+        <div className="flex space-x-2">
+          {(['all', 'active', 'completed'] as FilterType[]).map(filterType => (
+            <Button
+              key={filterType}
+              variant={filter === filterType ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter(filterType)}
+            >
+              {filterType === 'all' && 'All'}
+              {filterType === 'active' && 'Active'}
+              {filterType === 'completed' && 'Completed'}
+            </Button>
+          ))}
+        </div>
+
+        {/* Список задач */}
+        <div className="space-y-2 max-h-96 overflow-y-auto">
+          {filteredTasks.map(task => (
+            <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex items-center space-x-3">
                 <Checkbox checked={task.done} onCheckedChange={checked => toggleTask(task.id, checked as boolean)} />
-                <Label className={task.done ? 'line-through text-muted-foreground' : ''}>{task.title}</Label>
+                <div className="flex flex-col">
+                  <Label className={task.done ? 'line-through text-muted-foreground' : ''}>{task.title}</Label>
+                  {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
+                </div>
               </div>
               <Button variant="ghost" size="sm" onClick={() => removeTask(task.id)} disabled={deleteTaskMutation.isPending}>
                 <Trash2 className="h-4 w-4" />
