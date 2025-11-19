@@ -5,36 +5,64 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  done: boolean;
-}
+import { createTask, deleteTask, getTasks, Task, updateTask } from '@/lib/api';
+import { Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const addTask = () => {
-    if (newTask.trim()) {
-      setTasks([
-        ...tasks,
-        {
-          id: Date.now().toString(),
-          title: newTask,
-          done: false,
-        },
-      ]);
-      setNewTask('');
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    try {
+      const tasksData = await getTasks();
+      setTasks(tasksData);
+    } catch (error) {
+      console.error('Failed to load tasks:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const toggleTask = (taskId: string) => {
-    setTasks(tasks.map(task => (task.id === taskId ? { ...task, done: !task.done } : task)));
+  const addTask = async () => {
+    if (newTask.trim()) {
+      try {
+        const task = await createTask(newTask);
+        setTasks([...tasks, task]);
+        setNewTask('');
+      } catch (error) {
+        console.error('Failed to create task:', error);
+      }
+    }
   };
+
+  const toggleTask = async (taskId: string, done: boolean) => {
+    try {
+      const updatedTask = await updateTask(taskId, { done });
+      setTasks(tasks.map(task => (task.id === taskId ? updatedTask : task)));
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  };
+
+  const removeTask = async (taskId: string) => {
+    try {
+      await deleteTask(taskId);
+      setTasks(tasks.filter(task => task.id !== taskId));
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Card className="w-full max-w-md">
@@ -54,9 +82,14 @@ export function TaskList() {
 
         <div className="space-y-2">
           {tasks.map(task => (
-            <div key={task.id} className="flex items-center space-x-2 p-2 border rounded">
-              <Checkbox checked={task.done} onCheckedChange={() => toggleTask(task.id)} />
-              <Label className={task.done ? 'line-through text-muted-foreground' : ''}>{task.title}</Label>
+            <div key={task.id} className="flex items-center justify-between p-2 border rounded">
+              <div className="flex items-center space-x-2">
+                <Checkbox checked={task.done} onCheckedChange={checked => toggleTask(task.id, checked as boolean)} />
+                <Label className={task.done ? 'line-through text-muted-foreground' : ''}>{task.title}</Label>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => removeTask(task.id)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           ))}
         </div>
