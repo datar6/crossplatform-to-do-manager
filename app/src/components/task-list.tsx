@@ -1,13 +1,14 @@
 'use client';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Task } from '@/lib/api';
 import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from 'hooks/use-tasks';
-import { Search, Trash2 } from 'lucide-react';
+import { Edit2, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { EditTaskDialog } from './edit-task-dialog';
 
 type FilterType = 'all' | 'active' | 'completed';
 
@@ -15,6 +16,7 @@ export function TaskList() {
   const [newTask, setNewTask] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const { data: tasks = [], isLoading } = useTasks();
   const createTaskMutation = useCreateTask();
@@ -106,16 +108,24 @@ export function TaskList() {
             <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center space-x-3">
                 <Checkbox checked={task.done} onCheckedChange={checked => toggleTask(task.id, checked as boolean)} />
-                <div className="flex flex-col">
+
+                <div className="flex flex-col cursor-pointer" onClick={() => setEditingTask(task)}>
                   <Label className={task.done ? 'line-through text-muted-foreground' : ''}>{task.title}</Label>
+
                   {task.description && <p className="text-sm text-muted-foreground">{task.description}</p>}
                 </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => removeTask(task.id)} disabled={deleteTaskMutation.isPending}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex space-x-1">
+                <Button variant="ghost" size="sm" onClick={() => setEditingTask(task)}>
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => removeTask(task.id)} disabled={deleteTaskMutation.isPending}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ))}
+          <EditTaskDialog task={editingTask} open={!!editingTask} onOpenChange={open => !open && setEditingTask(null)} />
         </div>
       </CardContent>
     </Card>
