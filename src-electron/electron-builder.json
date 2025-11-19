@@ -1,0 +1,20 @@
+{
+  "appId": "io.github.datar6.todo-manager",
+  "productName": "Todo Manager",
+  "directories": {
+    "output": "release"
+  },
+  "files": ["dist/**/*", "../../app/dist/**/*", "package.json"],
+  "win": {
+    "target": "nsis",
+    "icon": "assets/icon.ico"
+  },
+  "mac": {
+    "target": "dmg",
+    "icon": "assets/icon.icns"
+  },
+  "linux": {
+    "target": "AppImage",
+    "icon": "assets/icon.png"
+  }
+}
