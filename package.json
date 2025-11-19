@@ -12,7 +12,9 @@
     "db:dev:down": "docker-compose down",
     "db:migrate": "cd backend && npm run db:migrate",
     "db:generate": "cd backend && npm run db:generate",
-    "install:all": "npm install && cd app && npm install && cd ../backend && npm install && cd ../src-electron && npm install"
+    "install:all": "npm install && cd app && npm install && cd ../backend && npm install && cd ../src-electron && npm install",
+    "electron:dev": "cd src-electron && npm run dev",
+    "electron:build": "cd src-electron && npm run build"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
