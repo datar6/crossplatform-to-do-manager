@@ -13,9 +13,13 @@
 
 ```bash
 # Клонування та встановлення залежностей
+
 git clone <repository>
+
 cd crossplatform-todo-manager
+
 npm run install:all
+
 🏃‍♂️ Запуск
 Розробка
 bash
@@ -26,7 +30,8 @@ npm run db:dev:up
 cd backend && npm run db:migrate
 
 # Запуск всіх сервісів
-npm run dev:full
+**npm run dev:full**
+
 Продакшн збірка
 bash
 # Збірка frontend
