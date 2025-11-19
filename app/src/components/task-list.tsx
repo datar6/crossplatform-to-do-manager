@@ -10,6 +10,7 @@ import { Edit2, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { DeleteConfirmDialog } from './delete-confirm-dialog';
 import { EditTaskDialog } from './edit-task-dialog';
+import { ThemeToggle } from './theme-toggle';
 
 type FilterType = 'all' | 'active' | 'completed';
 
@@ -65,7 +66,10 @@ export function TaskList() {
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Todo Manager</span>
-          <span className="text-sm font-normal text-muted-foreground">{filteredTasks.length} tasks</span>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-normal text-muted-foreground">{filteredTasks.length} tasks</span>
+            <ThemeToggle />
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
