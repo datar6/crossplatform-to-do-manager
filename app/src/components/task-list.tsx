@@ -5,63 +5,34 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createTask, deleteTask, getTasks, Task, updateTask } from '@/lib/api';
+import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from 'hooks/use-tasks';
 import { Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
-  const [loading, setLoading] = useState(true);
+  const { data: tasks = [], isLoading } = useTasks();
+  const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
-    try {
-      const tasksData = await getTasks();
-      setTasks(tasksData);
-    } catch (error) {
-      console.error('Failed to load tasks:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addTask = async () => {
+  const addTask = () => {
     if (newTask.trim()) {
-      try {
-        const task = await createTask(newTask);
-        setTasks([...tasks, task]);
-        setNewTask('');
-      } catch (error) {
-        console.error('Failed to create task:', error);
-      }
+      createTaskMutation.mutate({ title: newTask });
+      setNewTask('');
     }
   };
 
-  const toggleTask = async (taskId: string, done: boolean) => {
-    try {
-      const updatedTask = await updateTask(taskId, { done });
-      setTasks(tasks.map(task => (task.id === taskId ? updatedTask : task)));
-    } catch (error) {
-      console.error('Failed to update task:', error);
-    }
+  const toggleTask = (taskId: string, done: boolean) => {
+    updateTaskMutation.mutate({ id: taskId, updates: { done } });
   };
 
-  const removeTask = async (taskId: string) => {
-    try {
-      await deleteTask(taskId);
-      setTasks(tasks.filter(task => task.id !== taskId));
-    } catch (error) {
-      console.error('Failed to delete task:', error);
-    }
+  const removeTask = (taskId: string) => {
+    deleteTaskMutation.mutate(taskId);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return <div>Loading tasks...</div>;
   }
 
   return (
@@ -77,7 +48,9 @@ export function TaskList() {
             placeholder="What needs to be done?"
             onKeyPress={e => e.key === 'Enter' && addTask()}
           />
-          <Button onClick={addTask}>Add</Button>
+          <Button onClick={addTask} disabled={createTaskMutation.isPending}>
+            {createTaskMutation.isPending ? 'Adding...' : 'Add'}
+          </Button>
         </div>
 
         <div className="space-y-2">
@@ -87,7 +60,7 @@ export function TaskList() {
                 <Checkbox checked={task.done} onCheckedChange={checked => toggleTask(task.id, checked as boolean)} />
                 <Label className={task.done ? 'line-through text-muted-foreground' : ''}>{task.title}</Label>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => removeTask(task.id)}>
+              <Button variant="ghost" size="sm" onClick={() => removeTask(task.id)} disabled={deleteTaskMutation.isPending}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
