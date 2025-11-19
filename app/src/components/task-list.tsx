@@ -8,6 +8,7 @@ import { Task } from '@/lib/api';
 import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from 'hooks/use-tasks';
 import { Edit2, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { DeleteConfirmDialog } from './delete-confirm-dialog';
 import { EditTaskDialog } from './edit-task-dialog';
 
 type FilterType = 'all' | 'active' | 'completed';
@@ -17,6 +18,7 @@ export function TaskList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [deletingTask, setDeletingTask] = useState<{ id: string; title: string } | null>(null);
 
   const { data: tasks = [], isLoading } = useTasks();
   const createTaskMutation = useCreateTask();
@@ -50,8 +52,8 @@ export function TaskList() {
     updateTaskMutation.mutate({ id: taskId, updates: { done } });
   };
 
-  const removeTask = (taskId: string) => {
-    deleteTaskMutation.mutate(taskId);
+  const openDeleteDialog = (task: Task) => {
+    setDeletingTask({ id: task.id, title: task.title });
   };
 
   if (isLoading) {
@@ -119,9 +121,10 @@ export function TaskList() {
                 <Button variant="ghost" size="sm" onClick={() => setEditingTask(task)}>
                   <Edit2 className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => removeTask(task.id)} disabled={deleteTaskMutation.isPending}>
+                <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(task)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
+                <DeleteConfirmDialog task={deletingTask} open={!!deletingTask} onOpenChange={open => !open && setDeletingTask(null)} />
               </div>
             </div>
           ))}
