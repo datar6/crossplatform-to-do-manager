@@ -3,7 +3,7 @@ const API_BASE = 'http://localhost:3001';
 export interface Task {
   id: string;
   title: string;
-  description?: string;
+  description?: string | null;
   done: boolean;
   createdAt: string;
   updatedAt: string;
