@@ -22,6 +22,10 @@ npm run install:all
 
 🏃‍♂️ Запуск
 Розробка
+
+# Приклад .env файлу (покласти в директорыю backend)
+DATABASE_URL="postgresql://todo_user:todo_pass@localhost:5432/todo_db"
+
 bash
 # Запуск бази даних
 npm run db:dev:up
